@@ -95,3 +95,57 @@ D. Use AWS Glue to catalog the logs. Use a transient Apache Spark cluster on Am
 ## AWS Glue
 
 - A serverless data integration service that makes it easier to discover, prepare, move, and integrate data from multiple sources for analytics, machine learning (ML), and application development.
+
+**3. A company uses AWS Organizations to manage multiple AWS accounts for different departments. The management account has an Amazon S3 bucket that contains project reports. The company wants to limit access to this S3 bucket to only users of accounts within the organization in AWS Organizations.
+Which solution meets these requirements with the LEAST amount of operational overhead?**
+
+**A. Add the aws PrincipalOrgID global condition key with a reference to the organization ID to the S3 bucket policy.**
+
+**B. Create an organizational unit (OU) for each department. Add the aws:PrincipalOrgPaths global condition key to the S3 bucket policy.**
+
+**C. Use AWS CloudTrail to monitor the CreateAccount, InviteAccountToOrganization, LeaveOrganization, and RemoveAccountFromOrganization events. Update the S3 bucket policy accordingly.**
+
+**D. Tag each user that needs access to the S3 bucket. Add the aws:PrincipalTag global condition key to the S3 bucket policy.**
+
+**Related Theory:**
+
+## AWS Organizations
+
+- Policy based management for multiple AWS accounts.
+- Group AWS accounts under Organization Units (OUs).
+- SCPs apply at the organization or OU level, while IAM policies are applied at the user, group, or role level within an individual AWS account.
+- SCPs offer central control over the maximum available permissions for the IAM users and IAM roles in your organization.
+- SCPs do not grant permissions to the IAM users and IAM roles in your organization.
+- SCPs set limits, on the actions that the IAM users and IAM roles in your organization can perform.
+- **Scenarios:**
+  - If you have an S3 bucket and want to make sure only users from accounts in your AWS organization can access it, you would add the `aws:PrincipalOrgID` condition to the bucket policy and set it to your organization's ID. This way, even if new accounts are added to your organization later, they will automatically inherit the permissions without you needing to update the policy.
+  - **`aws:PrincipalOrgPaths`:** It’s a condition key that allows you to filter IAM principals (users or roles) based on their position in the AWS organization hierarchy. You can use it to control access to resources based on the organizational unit (OU) or account path.
+    Imagine you have an organization with different OUs: “Development,” “Production,” and “Testing.” You want to restrict access to an Amazon S3 bucket (e.g., sensitive financial data) only to users in the “Production” OU. In your S3 bucket policy, add a condition:
+    ```jsx
+    "Condition": {
+        "StringEquals": {
+            "aws:PrincipalOrgPaths": "type:Root/OU=Production,OU=MyOrg"
+        }
+    }
+    ```
+
+## CloudTrail
+
+- AWS CloudTrail is like a detective for your AWS account. It records every action taken by users, services, or applications within your AWS environment. Think of it as a detailed activity log that tracks who did what, when, and where in your AWS account.
+- **Scenarios:**
+  - Imagine you’re an IT manager responsible for ensuring compliance with security standards (like HIPAA or PCI). You’d use CloudTrail to track all API activity—every time someone creates an EC2 instance, modifies an S3 bucket, or changes an IAM policy.
+  - Suppose there’s an incident—an unauthorized change to a critical resource. CloudTrail provides the breadcrumb trail: Who made the change? What did they do? When did it happen? You can investigate and take corrective action.
+  - When something goes wrong (e.g., an application stops working), CloudTrail logs can help you trace the issue. You’ll see which APIs were called, which resources were affected, and any errors encountered.
+
+## CloudWatch
+
+- AWS CloudWatch is like your health monitor for AWS services. It keeps an eye on your resources, metrics, and logs.
+- **Scenarios:**
+  - Imagine you’re running a fleet of EC2 instances for your website. CloudWatch monitors CPU usage, memory, disk I/O, and network traffic. If any metric exceeds a threshold (e.g., CPU > 80%), CloudWatch sends an alert.
+  - A user complains that your app is slow. Where’s the bottleneck. CloudWatch Log Insights helps you search through logs quickly. AWS X-Ray traces requests across services, showing you which parts are slow.
+
+**Answer Explanation:**
+
+Option A is correct
+
+The aws:PrincipalOrgID condition key allows you to restrict access based on the organization ID, ensuring that only principals (users, roles, etc.) from accounts within your AWS Organization can access the S3 bucket.
